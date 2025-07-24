@@ -1,0 +1,47 @@
+context:
+  name: action-validator
+  version: "0.7.1"
+
+package:
+  name: ${{ name|lower }}
+  version: ${{ version }}
+
+source:
+  url: https://github.com/mpalmer/${{ name }}/archive/refs/tags/v${{ version }}.tar.gz
+  sha256: 03f69d99188a93e659030b91b62ec54fdf56bc19621b267d8081f363e64030ed
+
+build:
+  number: 0
+  script:
+    env:
+      CARGO_PROFILE_RELEASE_STRIP: symbols
+      CARGO_PROFILE_RELEASE_LTO: fat
+    content:
+      - cargo auditable install --locked --no-track --bins --root ${{ PREFIX }} --path .
+      - cargo-bundle-licenses --format yaml --output ./THIRDPARTY.yml
+
+requirements:
+  build:
+    - ${{ stdlib('c') }}
+    - ${{ compiler('c') }}
+    - ${{ compiler('rust') }}
+    - cargo-bundle-licenses
+    - cargo-auditable
+
+tests:
+  - script: action-validator --help
+
+about:
+  homepage: https://github.com/mpalmer/action-validator
+  summary: Summary of the package.
+  description: |
+    Tool to validate GitHub Action and Workflow YAML files
+  license: GPL
+  license_file:
+    - LICENSE
+  documentation: https://docs.rs/action-validator
+  repository: https://github.com/mpalmer/action-validator
+
+extra:
+  recipe-maintainers:
+    - AndreasAlbertQC
